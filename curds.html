@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+    <link rel="stylesheet" href="styel.css">
+    <script src="java.js"></script>
+<title>cruds project</title>
+
+<body>
+<div class="cruds">
+    <div class="head">
+        <h2> curds</h2>
+        <p>product mangment system</p>
+    </div>
+    <div class="inputs">
+        <input type="text" id="title" placeholder="Title">
+
+        <div class="prices">
+            <input  onkeyup="getTotal()" type="number" id="price" placeholder="price">
+            <input  onkeyup="getTotal()" type="number" id="taxes" placeholder="taxes">
+            <input  onkeyup="getTotal()" type="number" id="ads" placeholder="ads">
+            <input  onkeyup="getTotal()" type="number" id="discount" placeholder="discount">  
+            <small id ="total"></small>
+        </div>
+        <input type="number" id="count" placeholder="count">
+        <input type="text" id="category" placeholder="category">
+        <button id="submit"> Create</button>
+
+    </div>
+    <div class="outputs">
+        <div class="searchblock">
+            <input onkeyup="searchdate(this.value)" type="text" id="search" placeholder="Search">
+            <div class="btnsearch">
+                <button onclick="getsearchmood(this.id)" id="searchtitel">Search By Title </button>
+                <button onclick="getsearchmood(this.id)" id="searchcatigory">Search By Catigory </button>
+            </div>
+            <table>
+                <tr>
+                    <th>id</th>
+                    <th>title</th>
+                    <th>price</th>
+                    <th>taxes</th>
+                    <th>ads</th>
+                    <th>discount</th>
+                    <th>total</th>
+                    <th>catigory</th>
+                    <th>update </th>
+                    <th>delate</th>
+                </tr>
+                <tbody id="tbody">
+                  
+                    
+                </tbody>
+
+            </table>
+        </div>
+
+
+    </div>
+</div>
+<script>
+let title = document.getElementById("title");
+let price = document.getElementById("price");
+let taxes = document.getElementById("taxes");
+let ads = document.getElementById("ads");
+let discount = document.getElementById("discount");
+let count = document.getElementById("count");
+let category = document.getElementById("category");
+let submit = document.getElementById("submit");
+
+let mood='create';
+let temp;
+
+//get total
+function getTotal(){
+if(price.value!=''){
+    let result=(+price.value + +taxes.value + +ads.value) - +discount.value;
+    
+    total.innerHTML = result;
+    total.style.background ='#040'
+
+}else{
+total.innerHTML='';
+total.style.background ='#a00d02';
+}
+}
+//creat function
+let datapro;
+
+if(localStorage.product !=null){
+
+    datapro=JSON.parse(localStorage.product)
+
+}else{
+
+    datapro=[];
+}   
+
+
+submit.onclick= function(){
+let newpro={
+title:title.value,
+price:price.value,
+taxes:taxes.value,
+ads:ads.value,
+discount:discount.value,
+count:count.value,
+category:category.value,
+total:total.innerHTML,
+}
+if (mood==='create'){
+if (newpro.count > 1){
+for(i=0 ; i<newpro.count ; i++){
+    datapro.push(newpro)
+}
+}else{
+    datapro.push(newpro)
+}
+}else{
+
+datapro[ temp  ]=newpro;
+mood='create';
+count.style.display='block';
+
+}
+//creat local storage
+localStorage.setItem('product', JSON.stringify(datapro))
+cleardata()
+showdata()
+}
+//clear data
+function cleardata(){
+    title.value='';
+    price.value='';
+    taxes.value='';
+    ads.value='';
+    discount.value='';
+    count.value='';
+    category.value='';
+    total.innerHTML='';
+
+}
+//read data to table
+function showdata(){
+let table=' ';
+
+for(let i=0 ; i<datapro.length ; i++){
+table +=`  <tr>
+                        <td>${i}</td>
+                        <td>${datapro[i].title}</td>
+                        <td>${datapro[i].price}</td>
+                        <td>${datapro[i].taxes}</td>
+                        <td>${datapro[i].ads}</td>
+                        <td>${datapro[i].discount}</td>
+                        <td>${datapro[i].total}</td>
+                        <td>${datapro[i].category}</td>
+                        <td><button onclick="updatedate(${i})" id="update">update</button></td>
+                        <td><button onclick="deletedate(${i})" id="delete">delete</button></td>
+                    </tr>
+`;
+
+
+}
+document.getElementById('tbody').innerHTML=table;
+}
+showdata()
+
+//Delete function
+
+function deletedate(i){
+datapro.splice(i,1);
+localStorage.product=JSON.stringify(datapro);
+showdata()
+}
+//update function
+function updatedate(i){
+
+   // console.log(i);
+   title.value=datapro[i].title;
+   price.value=datapro[i].price;
+   ads.value=datapro[i].ads;
+   taxes.value=datapro[i].taxes;
+   category.value=datapro[i].category;
+   discount.value=datapro[i].discount;
+   getTotal()
+   count.style.display="none";
+   submit.innerHTML='Update';
+    mood='update';
+    temp=i;
+
+    scroll({
+        top:0,
+        behavior:"smooth",
+    })
+}
+
+//search
+let searchhmood='title';
+function getsearchmood(id){
+let search =document.getElementById('search');
+if(id==searchtitel){
+searchhmood='title';
+
+}else{
+
+    searchhmood='category';
+}
+search.focus();
+}
+function searchdate(value){
+    let table=' ';
+if(searchhmood=='title'){
+for(let i=0;i<datapro.length;i++){
+    if(datapro[i].title,inclouds(value)){
+        table +=`  <tr>
+                        <td>${i}</td>
+                        <td>${datapro[i].title}</td>
+                        <td>${datapro[i].price}</td>
+                        <td>${datapro[i].taxes}</td>
+                        <td>${datapro[i].ads}</td>
+                        <td>${datapro[i].discount}</td>
+                        <td>${datapro[i].total}</td>
+                        <td>${datapro[i].category}</td>
+                        <td><button onclick="updatedate(${i})" id="update">update</button></td>
+                        <td><button onclick="deletedate(${i})" id="delete">delete</button></td>
+                    </tr>
+`;
+document.getElementById('tbody').innerHTML=table;
+    }
+    document.getElementById('tbody').innerHTML=table;
+}
+}else{
+    for(let i=0;i<datapro.length;i++){
+    if(datapro[i].category,inclouds(value)){
+        table +=`  <tr>
+                        <td>${i}</td>
+                        <td>${datapro[i].title}</td>
+                        <td>${datapro[i].price}</td>
+                        <td>${datapro[i].taxes}</td>
+                        <td>${datapro[i].ads}</td>
+                        <td>${datapro[i].discount}</td>
+                        <td>${datapro[i].total}</td>
+                        <td>${datapro[i].category}</td>
+                        <td><button onclick="updatedate(${i})" id="update">update</button></td>
+                        <td><button onclick="deletedate(${i})" id="delete">delete</button></td>
+                    </tr>
+`;
+document.getElementById('tbody').innerHTML=table;
+    }
+}
+}
+
+document.getElementById('tbody').innerHTML=table;
+}
+</script>
+</body>
+</html>
